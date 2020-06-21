@@ -17,9 +17,9 @@ class recipeController {
         const finalResult = {};
         finalResult.keywords = ingredients;
       finalResult.recipes = treatedRecipe.map((recipe, index) => {
-        const currentGif = arrUrls[index][0];
+        const currentGif = arrUrls[index];
         currentGif
-          ? (recipe.gif = currentGif.images.original.url)
+          ? (recipe.gif = currentGif[0].images.original.url)
           : (recipe.gif = "No giphy found for this recipe");
         return recipe;
       });
