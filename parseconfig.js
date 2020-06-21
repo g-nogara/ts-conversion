@@ -8,7 +8,7 @@ projectSecrets.map(secret => {
         console.log('ERROR: Enviroment missing necessary configuration');
         return;
     }
-    fileContent += `export const ${secret} = ${process.env[secret]}\n`;
+    fileContent += `exports.${secret} = '${process.env[secret]}'\n`;
 })
 
 fs.writeFileSync('config.js', fileContent);
