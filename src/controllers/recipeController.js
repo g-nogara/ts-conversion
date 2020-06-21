@@ -8,7 +8,10 @@ class recipeController {
     const arrGiphys = await giphyController.getGiphyURL(treatedRecipe);
     Promise.all(arrGiphys).then((arrUrls) => {
       const finalResult = treatedRecipe.map((recipe, index) => {
-        recipe.gif = arrUrls[index][0].images.original.url;
+        const currentGif = arrUrls[index][0];
+        currentGif
+          ? (recipe.gif = currentGif.images.original.url)
+          : (recipe.gif = "No giphy found for this recipe");
         return recipe;
       });
       res.status(200).json(finalResult);
@@ -16,14 +19,18 @@ class recipeController {
 
     function getRecipe(req, res) {
       const ingredients = req.query.i;
-      if (!ingredients || ingredients.split(",").length > 3)
-        res
-          .status(400)
-          .json({
-            error: "Use at least one and no more than three ingredients",
-          });
+      if (!ingredients || ingredients.split(",").length > 3) {
+        res.status(400).json({
+          error: "Use at least one and no more than three ingredients",
+        });
+      }
       const recipe = fetch(`http://www.recipepuppy.com/api/?i=${ingredients}`)
-        .then((res) => res.json())
+        .then((resPuppy) => {
+          if (resPuppy.status != 200) {
+            res.status(404).json({ error: "RecipePuppy found nothing!" });
+          }
+          return resPuppy.json();
+        })
         .then((json) => {
           const { results } = json;
           const parsedResponse = results.map((recipe) => {
