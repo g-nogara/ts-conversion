@@ -3,11 +3,20 @@ const GiphyController = require("./giphyController");
 
 class recipeController {
   async recipeWithGif(req, res) {
-    const treatedRecipe = await getRecipe(req, res);
+    const ingredients = req.query.i;
+    if (!ingredients || ingredients.split(",").length > 3) {
+      res.status(400).json({
+        error: "Use at least one and no more than three ingredients",
+      });
+    }
+
+    const treatedRecipe = await getRecipe(ingredients, res);
     const giphyController = new GiphyController();
     const arrGiphys = await giphyController.getGiphyURL(treatedRecipe);
     Promise.all(arrGiphys).then((arrUrls) => {
-      const finalResult = treatedRecipe.map((recipe, index) => {
+        const finalResult = {};
+        finalResult.keywords = ingredients;
+      finalResult.recipes = treatedRecipe.map((recipe, index) => {
         const currentGif = arrUrls[index][0];
         currentGif
           ? (recipe.gif = currentGif.images.original.url)
@@ -17,13 +26,7 @@ class recipeController {
       res.status(200).json(finalResult);
     });
 
-    function getRecipe(req, res) {
-      const ingredients = req.query.i;
-      if (!ingredients || ingredients.split(",").length > 3) {
-        res.status(400).json({
-          error: "Use at least one and no more than three ingredients",
-        });
-      }
+    function getRecipe(ingredients, res) {
       const recipe = fetch(`http://www.recipepuppy.com/api/?i=${ingredients}`)
         .then((resPuppy) => {
           if (resPuppy.status != 200) {
