@@ -1,10 +1,10 @@
-const express = require('express');
+const express = require("express");
 const recipeRouter = express.Router();
 
-const recipeController = require('../controllers/recipeController');
+const RecipeController = require("../controllers/recipeController");
 
-const controller = new recipeController();
+const controller = new RecipeController();
 
-recipeRouter.get('/', controller.getRecipe);
+recipeRouter.get("/", controller.recipeWithGif);
 
 module.exports = recipeRouter;
